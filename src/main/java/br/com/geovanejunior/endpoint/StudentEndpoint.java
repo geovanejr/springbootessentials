@@ -54,4 +54,34 @@ public class StudentEndpoint {
         Student.studentList.add(student);
         return new ResponseEntity<>(student, HttpStatus.CREATED);
     }
+
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") int id) {
+
+        Student student = new Student();
+        student.setId(id);
+        int index = Student.studentList.indexOf(student);
+
+        if (index == -1) {
+            return new ResponseEntity<>(new CustomErrorType("Student not found"), HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(Student.studentList.remove(index), HttpStatus.OK);
+    }
+
+    @PutMapping()
+    public ResponseEntity<?> delete(@RequestBody Student student) {
+
+        Student studentTemp = new Student();
+        studentTemp.setId(student.getId());
+        int index = Student.studentList.indexOf(studentTemp);
+
+        if (index == -1) {
+            return new ResponseEntity<>(new CustomErrorType("Student not found"), HttpStatus.NOT_FOUND);
+        }
+
+        Student.studentList.remove(index);
+        Student.studentList.add(student);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }
