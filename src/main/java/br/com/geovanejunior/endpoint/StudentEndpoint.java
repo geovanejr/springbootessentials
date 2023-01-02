@@ -1,6 +1,7 @@
 package br.com.geovanejunior.endpoint;
 
 import br.com.geovanejunior.error.CustomErrorType;
+import br.com.geovanejunior.error.ResourceNotFoundException;
 import br.com.geovanejunior.model.Student;
 import br.com.geovanejunior.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +31,8 @@ public class StudentEndpoint {
     @GetMapping(path = "/{id}")
     public ResponseEntity<?> getStudentById(@PathVariable("id") long id) {
 
+        verifyIfStudentExist(id);
         Optional<Student> student = studentDAO.findById(id);
-
-        if (!student.isPresent()) {
-            return new ResponseEntity<>(new CustomErrorType("Student not found"), HttpStatus.NOT_FOUND);
-        }
-
         return new ResponseEntity<>(student, HttpStatus.OK);
     }
 
@@ -54,6 +51,7 @@ public class StudentEndpoint {
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") long id) {
 
+        verifyIfStudentExist(id);
         studentDAO.deleteById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -61,7 +59,16 @@ public class StudentEndpoint {
     @PutMapping()
     public ResponseEntity<?> update(@RequestBody Student student) {
 
+        verifyIfStudentExist(student.getId());
         studentDAO.save(student);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private void verifyIfStudentExist(long id) {
+        Optional<Student> student = studentDAO.findById(id);
+
+        if (!student.isPresent()) {
+            throw new ResourceNotFoundException("Student not found for ID: " + id);
+        }
     }
 }
